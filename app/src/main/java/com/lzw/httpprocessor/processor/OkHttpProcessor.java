@@ -2,9 +2,7 @@ package com.lzw.httpprocessor.processor;
 
 
 import android.os.Handler;
-import android.text.TextUtils;
 
-import com.lzw.httpprocessor.http.HttpHelper;
 import com.lzw.httpprocessor.interfaces.ICallBack;
 import com.lzw.httpprocessor.interfaces.IhttpProcessor;
 
@@ -33,7 +31,11 @@ public class OkHttpProcessor implements IhttpProcessor {
     private ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     public OkHttpProcessor(){
-        mOkHttpClient = new OkHttpClient();
+        mOkHttpClient = new OkHttpClient()
+                .newBuilder()
+                .addInterceptor(new LoggerInterceptor())
+                .addInterceptor(new TokenHeaderInterceptor())
+                .build();
         mHandler = new Handler();
     }
 
@@ -162,7 +164,12 @@ public class OkHttpProcessor implements IhttpProcessor {
                 mOkHttpClient.newCall(request).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
-                        callback.onFailed(e.toString());
+                        if(e.toString().contains("closed")) {
+                            //如果是主动取消的情况下
+                        }else {
+                            //其他情况下
+                            callback.onFailed(e.toString());
+                        }
                     }
 
                     @Override
@@ -193,17 +200,30 @@ public class OkHttpProcessor implements IhttpProcessor {
     }
 
     @Override
-    public void request(HttpHelper instance) {
-        if(instance.method == METHOD_GET) {
-            get(instance.url, instance.mParams, instance.callback);
-        } else if(instance.method == METHOD_POST) {
-            if(TextUtils.isEmpty(instance.json)) {
-                post(instance.url, instance.mParams, instance.callback);
+    public void request(Map<String, Object> params) {
+        if("METHOD_GET".equals(params.get("method"))) {
+            get(params.get("url").toString(), (Map<String, Object>) params.get("mParams"), (ICallBack)params.get("callback"));
+        } else if("METHOD_POST".equals(params.get("method"))) {
+            if(null == params.get("json")) {
+                post(params.get("url").toString(), (Map<String, Object>) params.get("mParams"), (ICallBack)params.get("callback"));
             } else {
-                postJson(instance.url, instance.json, instance.callback);
+                postJson(params.get("url").toString(), params.get("json").toString(), (ICallBack)params.get("callback"));
             }
         }
     }
+
+//    @Override
+//    public void request(Map<String, Object> params) {
+//        if(instance.method == METHOD_GET) {
+//            get(instance.url, instance.mParams, instance.callback);
+//        } else if(instance.method == METHOD_POST) {
+//            if(TextUtils.isEmpty(instance.json)) {
+//                post(instance.url, instance.mParams, instance.callback);
+//            } else {
+//                postJson(instance.url, instance.json, instance.callback);
+//            }
+//        }
+//    }
 
     //传入参数，返回添加头信息
     private RequestBody appendBody( Map<String, Object> params){

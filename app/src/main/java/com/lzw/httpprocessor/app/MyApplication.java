@@ -3,9 +3,8 @@ package com.lzw.httpprocessor.app;
 import android.app.Application;
 
 import com.lzw.httpprocessor.BuildConfig;
-import com.lzw.httpprocessor.http.HttpHelper;
+import com.lzw.httpprocessor.http.ZkjcHttp;
 import com.lzw.httpprocessor.processor.OkHttpProcessor;
-import com.lzw.httpprocessor.processor.VolleyProcessor;
 
 import org.xutils.x;
 
@@ -21,10 +20,10 @@ public class MyApplication extends Application {
         //这里只需要一行代码切换网络框架，6不6！！！
 
         //初始化Volley方式网络请求代理
-//        HttpHelper.init(new VolleyProcessor(this));
+//        ZkjcHttp.init(new VolleyProcessor(this));
 
         //初始化Okhttp方式网络请求代理
-        HttpHelper.init(new OkHttpProcessor());
+        ZkjcHttp.init(new OkHttpProcessor());
 
         x.Ext.init(this);
         x.Ext.setDebug(BuildConfig.DEBUG); // 开启debug会影响性能

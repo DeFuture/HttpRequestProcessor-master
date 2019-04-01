@@ -9,7 +9,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.lzw.httpprocessor.http.HttpHelper;
 import com.lzw.httpprocessor.interfaces.ICallBack;
 import com.lzw.httpprocessor.interfaces.IhttpProcessor;
 
@@ -66,7 +65,7 @@ public class VolleyProcessor implements IhttpProcessor {
     }
 
     @Override
-    public void request(HttpHelper instance) {
+    public void request(Map<String, Object> params) {
 
     }
 }
