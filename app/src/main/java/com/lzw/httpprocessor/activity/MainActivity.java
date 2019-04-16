@@ -2,9 +2,11 @@ package com.lzw.httpprocessor.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,23 +21,35 @@ import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView textView;
+    private EditText editUrl;
+    private EditText editParam;
     private Button button;
     private Button button1;
     private Button button2;
     //快递接口
     private String url2 = "http://www.kuaidi100.com/query?type=quanfengkuaidi&postid=300008026630";
+
+    private ExecutorService executorService = Executors.newFixedThreadPool(10);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView = (TextView) findViewById(R.id.textView);
+        editUrl = (EditText) findViewById(R.id.et_url);
+        editParam = (EditText) findViewById(R.id.et_param);
+
         button = (Button) findViewById(R.id.button);
         button.setOnClickListener(this);
         button1 = (Button) findViewById(R.id.button1);
@@ -44,40 +58,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(TextUtils.isEmpty(editUrl.getText().toString()))  {
+                    editUrl.setText("http://192.168.0.152:8080/mobile/api/jdrz/list");
+                    return;
+                }
+                if(TextUtils.isEmpty(editParam.getText().toString()))  {
+                    editParam.setText("{\"ywbh\":\"1111\"}");
+                    return;
+                }
 
-                Map<String, Object> head = new HashMap();
-                head.put("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlYzQ4NWZmNWY2MzE0MDA4YjQyODI2YTg1MGUwODQ5ZSIsInN1YiI6IjEzMjI0NDQ5ODg4IiwiaWF0IjoxNTUzODIyODEzLCJyb2xlcyI6Iue6quW3peWnlOWFmumjjuenkeWupOS6uuWRmCznuqrlt6Xlp5TmuIXljZXkuIrmiqUiLCJleHAiOjE1NTM4MjI4MjB9.1QIr_IpEzadhv_LTxkFVMDdD_HC8cE2gjcoZBWQ1lnw");
-                ZkjcHttp httpHelper = new ZkjcHttp.Builder()
-                        .post("http://192.168.0.152:8080/mobile/api/jdrz/list")
-                        .setJsonContent("{\"ywbh\":\"1111\"}")
-                        .setCallback(new HttpCallback<String>() {
-                            @Override
-                            public void onSuccess(String s) {
-                                Toast.makeText(x.app(), s, Toast.LENGTH_LONG).show();
-                            }
+                for(int i = 0; i < 2; i++) {
+                    executorService.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            ZkjcHttp httpHelper = new ZkjcHttp.Builder()
+//                                    .post(editUrl.getText().toString())
+                                    .post("http://www.kuaidi100.com/query")
+                                    .addParam("type", "quanfengkuaidi")
+                                    .addParam("postid", "300008026630")
+//                                    .setJsonContent(editParam.getText().toString())
+                                    .setCallback(new HttpCallback<String>() {
+                                        @Override
+                                        public void onSuccess(final String result) {
+                                            Toast.makeText(x.app(), result, Toast.LENGTH_LONG).show();
+                                        }
 
-                            @Override
-                            public void onFailed(String string) {
-                                Toast.makeText(x.app(), string, Toast.LENGTH_LONG).show();
-                            }
-                }).request();
+                                        @Override
+                                        public void onFailed(final String string) {
+                                            Toast.makeText(x.app(), string, Toast.LENGTH_LONG).show();
+                                        }
+                                    }).request();
 
-                if(true) return;
-                ZkjcHttp.obtain().postJson("\"http://192.168.0.123:8080/mobile/api/jdrz/list\"",
-                        "{\n" +
-                                "\"ywbh\":\"1111\"\n" +
-                                "}", new HttpCallback<String>() {
 
-                            @Override
-                            public void onSuccess(String s) {
-                                Toast.makeText(x.app(), s, Toast.LENGTH_LONG).show();
-                            }
-
-                            @Override
-                            public void onFailed(String string) {
-                                Toast.makeText(x.app(), string, Toast.LENGTH_LONG).show();
-                            }
-                        });
+                        }
+                    });
+                }
 
                 if(true)return;
                 RequestParams params = new RequestParams("http://192.168.0.123:8080/mobile/api/jdrz/list");

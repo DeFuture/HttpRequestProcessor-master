@@ -3,7 +3,12 @@ package com.lzw.httpprocessor.http;
 import com.lzw.httpprocessor.interfaces.ICallBack;
 import com.lzw.httpprocessor.interfaces.IhttpProcessor;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,9 +18,6 @@ public class ZkjcHttp {
 
     private static IhttpProcessor mIhttpProcessor;
     private static ZkjcHttp _instance;
-    public String url;
-    public int method;
-    public Map<String, Object> head;
     public Map<String, Object> mParams;
     public String json;
     public ICallBack callback;
@@ -35,6 +37,7 @@ public class ZkjcHttp {
         private String json;
         private ICallBack callback;
         private Map<String, Object> mRequestParams;
+        private List<String> mFiles;
 
         public Builder get(String url) {
 //            method = METHOD_GET;
@@ -53,13 +56,24 @@ public class ZkjcHttp {
         }
 
         public Builder head(Map<String, Object> head) {
-            this.head = head;
+            if(null == this.mParams) this.mParams = new HashMap<>();
+            Iterator<Map.Entry<String, Object>> iter = mParams.entrySet().iterator();
+            while(iter.hasNext()) {
+                Map.Entry<String, Object> next = iter.next();
+                this.mParams.put("head$" + next.getKey(), next.getValue());
+            }
             return this;
         }
 
         public Builder addHead(String key, String value) {
-            if(null == this.head) this.head = new HashMap<>();
-            this.head.put(key, value);
+            if(null == this.mParams) this.mParams = new HashMap<>();
+            this.mParams.put("head$" + key, value);
+            return this;
+        }
+
+        public Builder addParam(String key, String value) {
+            if(null == this.mParams) this.mParams = new HashMap<>();
+            this.mParams.put(key, value);
             return this;
         }
 
@@ -68,9 +82,19 @@ public class ZkjcHttp {
             return this;
         }
 
-        public Builder addParam(String key, String value) {
+        public Builder setFiles(Map<String, Object> mParams) {
             if(null == this.mParams) this.mParams = new HashMap<>();
-            this.mParams.put(key, value);
+            Iterator<Map.Entry<String, Object>> iter = mParams.entrySet().iterator();
+            while(iter.hasNext()) {
+                Map.Entry<String, Object> next = iter.next();
+                this.mParams.put("file$" + next.getKey(), next.getValue());
+            }
+            return this;
+        }
+
+        public Builder addFile(String key, String value) {
+            if(null == this.mParams) this.mParams = new HashMap<>();
+            this.mParams.put("file$" + key, value);
             return this;
         }
 
@@ -92,7 +116,6 @@ public class ZkjcHttp {
 
                 mRequestParams.put("url", url);
 //                mRequestParams.put("method", method);
-                mRequestParams.put("head", head);
                 mRequestParams.put("mParams", mParams);
                 mRequestParams.put("json", json);
                 mRequestParams.put("callback", callback);
@@ -116,7 +139,6 @@ public class ZkjcHttp {
 
                 mRequestParams.put("url", url);
 //                mRequestParams.put("method", method);
-                mRequestParams.put("head", head);
                 mRequestParams.put("mParams", mParams);
                 mRequestParams.put("json", json);
                 mRequestParams.put("callback", callback);
@@ -125,6 +147,7 @@ public class ZkjcHttp {
 
             return _instance;
         }
+
     }
 
     public static ZkjcHttp obtain(){
@@ -149,10 +172,6 @@ public class ZkjcHttp {
     public void post(String url, Map<String, Object> params, ICallBack callback) {
         //final String finalUrl = appendParams(url,params);
 		mIhttpProcessor.post(url,params,callback);
-    }
-
-    public void postJson(String url, String params, ICallBack callback) {
-        mIhttpProcessor.postJson(url,params,callback);
     }
 
     public void request() {

@@ -4,22 +4,34 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <EditText
+        android:id="@+id/et_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="http://192.168.0.152:8080/mobile/api/jdrz/list"/>
 
+    <EditText
+        android:id="@+id/et_param"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_content"/>
 
     <Button
+        android:visibility="gone"
         android:text="点击请求网络"
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <Button
+        android:visibility="gone"
         android:text="点击请求网络"
         android:id="@+id/button1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <Button
-        android:text="通过xutils3请求网络"
+        android:text="请求网络"
         android:id="@+id/button2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

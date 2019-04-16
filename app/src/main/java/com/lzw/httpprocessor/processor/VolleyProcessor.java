@@ -60,12 +60,12 @@ public class VolleyProcessor implements IhttpProcessor {
     }
 
     @Override
-    public void postJson(String url, String params, ICallBack callback) {
+    public void request(Map<String, Object> params) {
 
     }
 
     @Override
-    public void request(Map<String, Object> params) {
+    public void cancelRequest() {
 
     }
 }

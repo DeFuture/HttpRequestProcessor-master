@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">HttpProcessor</string>
+
+    <string name="text_content">{\"ywbh\":\"1111\"}</string>
 </resources>
